@@ -19,6 +19,17 @@ if (!is_logged_in()) {
 
 $input = json_decode(file_get_contents('php://input'), true);
 
+if (!is_array($input)) {
+    http_response_code(400);
+
+    echo json_encode([
+        'success' => false,
+        'message' => 'Neveljavni podatki zahtevka.'
+    ]);
+
+    exit;
+}
+
 if (!verify_csrf_token($input['csrf_token'] ?? null)) {
     http_response_code(403);
 

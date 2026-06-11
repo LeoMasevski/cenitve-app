@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/valuation_assistant.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 require_login();
 
@@ -102,6 +103,10 @@ require_once __DIR__ . '/../includes/header.php';
 
 <div class="card">
     <h2>Moje cenitve</h2>
+
+    <script>
+        window.csrfToken = "<?php echo escape_html(csrf_token()); ?>";
+    </script>
 
     <?php if (isset($_GET['created'])): ?>
         <div class="success">

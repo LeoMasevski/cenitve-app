@@ -6,6 +6,6 @@
     </div>
 </footer>
 
-<script src="/cenitve-app/assets/js/app.js?v=3"></script>
+<script src="/cenitve-app/assets/js/app.js?v=4"></script>
 </body>
 </html>
