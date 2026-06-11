@@ -287,8 +287,6 @@ Trenutne omejitve:
 - ni izvoza podatkov,
 - ni integracije z zunanjimi GIS sistemi.
 
-Te omejitve so sprejemljive, ker je namen naloge prikaz osnovnega znanja razvoja spletne aplikacije, strukture kode in načina razmišljanja.
-
 ---
 
 ## Možne nadgradnje
