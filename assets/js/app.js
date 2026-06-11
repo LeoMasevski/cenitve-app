@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    id: valuationId
+                    id: valuationId,
+                    csrf_token: window.csrfToken
                 })
             })
                 .then(function (response) {

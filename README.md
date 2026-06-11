@@ -2,27 +2,28 @@
 
 ## Opis projekta
 
-To je preprosta spletna aplikacija za upravljanje cenitev nepremičnin. Aplikacija omogoča registracijo in prijavo uporabnika ter osnovno delo s cenitvami: dodajanje, pregledovanje, urejanje in brisanje.
+To je preprosta spletna aplikacija za upravljanje cenitev nepremičnin. Aplikacija omogoča registracijo in prijavo uporabnika ter delo s cenitvami: pregled, dodajanje, urejanje, brisanje, iskanje, filtriranje in razvrščanje.
 
-Vsak prijavljen uporabnik lahko dostopa samo do svojih cenitev. Brisanje cenitve je izvedeno z uporabo JavaScript `fetch` zahtevka, zato se cenitev izbriše brez osvežitve celotne strani.
-
-Projekt je izdelan kot demonstracija osnovnega razvoja spletne aplikacije z uporabo PHP, MySQL, HTML, CSS in JavaScript.
+Vsak prijavljen uporabnik lahko dostopa samo do svojih cenitev. Projekt je izdelan kot demonstracija osnovnega razvoja spletne aplikacije z uporabo PHP, MySQL, HTML, CSS in JavaScript.
 
 ---
 
 ## Funkcionalnosti
 
-- registracija uporabnika,
-- prijava uporabnika,
-- odjava uporabnika,
-- dodajanje nove cenitve,
+Aplikacija omogoča:
+
+- registracijo uporabnika,
+- prijavo uporabnika,
+- odjavo uporabnika,
 - pregled vseh cenitev prijavljenega uporabnika,
+- dodajanje nove cenitve,
 - urejanje obstoječe cenitve,
-- brisanje cenitve brez osvežitve strani,
-- osnovna validacija vnosnih podatkov,
-- zaščita strani, ki so dostopne samo prijavljenim uporabnikom,
-- povezava s podatkovno bazo MySQL,
-- uporaba `.env` datoteke za lokalne nastavitve povezave z bazo.
+- brisanje cenitve,
+- iskanje cenitev,
+- filtriranje cenitev,
+- razvrščanje cenitev.
+
+Brisanje cenitve je izvedeno z uporabo JavaScript `fetch` zahtevka, zato se izbrana cenitev odstrani brez osvežitve celotne strani.
 
 ---
 
@@ -30,14 +31,16 @@ Projekt je izdelan kot demonstracija osnovnega razvoja spletne aplikacije z upor
 
 Vsaka cenitev vsebuje naslednje podatke:
 
-- naziv naročnika,
-- naslov naročnika,
-- namen cenitve,
-- podlaga vrednosti,
-- premisa vrednosti,
-- datum in ura prvega ogleda.
+| Podatek | Tip vnosa |
+|---|---|
+| Naziv naročnika | Ročni vnos |
+| Naslov naročnika | Ročni vnos |
+| Namen cenitve | Izbira iz vnaprej določenih možnosti |
+| Podlaga vrednosti | Izbira iz vnaprej določenih možnosti |
+| Premisa vrednosti | Izbira iz vnaprej določenih možnosti |
+| Prvi ogled | Datum in ura |
 
-Možnosti pri namenu cenitve:
+### Možnosti pri namenu cenitve
 
 - zavarovano posojanje,
 - sodni postopek,
@@ -46,18 +49,34 @@ Možnosti pri namenu cenitve:
 - davčni postopek,
 - poslovna odločitev naročnika.
 
-Možnosti pri podlagi vrednosti:
+### Možnosti pri podlagi vrednosti
 
 - tržna vrednost,
 - likvidacijska vrednost,
 - tržna najemnina,
 - pravična vrednost.
 
-Možnosti pri premisi vrednosti:
+### Možnosti pri premisi vrednosti
 
 - sedanja ali obstoječa uporaba,
 - najgospodarnejša uporaba,
 - redna likvidacija.
+
+---
+
+## Dodatne izboljšave
+
+Poleg osnovnih funkcionalnosti aplikacija vključuje tudi nekaj dodatnih izboljšav:
+
+- osnovna validacija vnosnih podatkov,
+- validacija oblike naslova naročnika,
+- primeri in pojasnila pri ročnih vnosih,
+- pametni pregled cenitve z opozorili in priporočili,
+- odzivno oblikovanje za različne velikosti zaslona,
+- bolj pregleden prikaz cenitev na manjših zaslonih,
+- potrditveno vprašanje pred brisanjem cenitve.
+
+Pametni pregled cenitve je pravili temelječ pomočnik, ki uporabnika opozori na morebitne nepopolne ali manj smiselne podatke. Namen te izboljšave je boljša uporabniška izkušnja in večja kakovost vnesenih podatkov.
 
 ---
 
@@ -97,8 +116,11 @@ cenitve-app/
 │
 ├── includes/
 │   ├── auth.php
+│   ├── csrf.php
+│   ├── footer.php
 │   ├── header.php
-│   └── footer.php
+│   ├── validation.php
+│   └── valuation_assistant.php
 │
 ├── public/
 │   ├── index.php
@@ -109,6 +131,7 @@ cenitve-app/
 │   ├── valuation_create.php
 │   └── valuation_edit.php
 │
+├── .env
 ├── .env.example
 ├── .gitignore
 └── README.md
@@ -190,7 +213,7 @@ DB_PASSWORD=vas_mysql_password
 
 Datoteka `.env` vsebuje lokalne nastavitve za povezavo z bazo. Ta datoteka ni namenjena objavi v Git repozitoriju.
 
-V projektu je vključena datoteka `.env.example`, ki prikazuje primer potrebnih nastavitev.
+V projektu je vključena tudi datoteka `.env.example`, ki prikazuje primer potrebnih nastavitev.
 
 ---
 
@@ -220,24 +243,63 @@ http://localhost/cenitve-app/public/index.php
 
 ## Uporaba aplikacije
 
-1. Na začetni strani izberite možnost registracije.
+1. Na začetni strani izberite registracijo.
 2. Ustvarite uporabniški račun.
 3. Prijavite se z e-pošto in geslom.
-4. Po prijavi lahko dodate novo cenitev.
-5. Na nadzorni plošči lahko vidite seznam svojih cenitev.
-6. Posamezno cenitev lahko uredite ali izbrišete.
-7. Pri brisanju se prikaže potrditveno vprašanje. Če uporabnik brisanje potrdi, se cenitev izbriše brez osvežitve celotne strani.
+4. Po prijavi se odpre nadzorna plošča s seznamom cenitev.
+5. Dodajte novo cenitev.
+6. Na nadzorni plošči lahko cenitve iščete, filtrirate in razvrščate.
+7. Posamezno cenitev lahko uredite ali izbrišete.
+8. Po končanem delu se lahko odjavite.
 
 ---
 
 ## Varnostne značilnosti
 
-Aplikacija vključuje osnovne varnostne pristope:
+Aplikacija vključuje osnovne varnostne ukrepe:
 
 - gesla se shranjujejo z uporabo `password_hash`,
 - prijava preverja gesla z uporabo `password_verify`,
-- SQL poizvedbe se izvajajo s pripravljenimi stavki PDO,
+- gesla imajo določene zahteve glede dolžine in kompleksnosti,
+- SQL poizvedbe se izvajajo s pripravljenimi PDO stavki,
 - strani za upravljanje cenitev so dostopne samo prijavljenim uporabnikom,
 - uporabnik lahko dostopa samo do svojih cenitev,
 - izpis uporabniških podatkov uporablja `htmlspecialchars`,
+- obrazci uporabljajo CSRF zaščito,
+- brisanje prek `fetch` zahtevka uporablja CSRF žeton,
+- prijava uporablja osnovno omejevanje neuspešnih poskusov,
+- aplikacija uporablja časovno omejitev seje,
+- zaščitene strani uporabljajo no-cache glave,
 - podatki za povezavo z bazo so shranjeni v lokalni `.env` datoteki.
+
+---
+
+## Omejitve projekta
+
+Aplikacija je zasnovana kot preprosta testna rešitev in ni namenjena neposredni produkcijski uporabi brez dodatnih nadgradenj.
+
+Trenutne omejitve:
+
+- ni potrjevanja registracije prek e-pošte,
+- ni ponastavitve pozabljenega gesla,
+- ni naprednega upravljanja vlog,
+- ni zgodovine sprememb cenitev,
+- ni izvoza podatkov,
+- ni integracije z zunanjimi GIS sistemi.
+
+Te omejitve so sprejemljive, ker je namen naloge prikaz osnovnega znanja razvoja spletne aplikacije, strukture kode in načina razmišljanja.
+
+---
+
+## Možne nadgradnje
+
+Aplikacijo bi bilo mogoče nadgraditi z naslednjimi funkcionalnostmi:
+
+- potrjevanje uporabniškega računa prek e-pošte,
+- ponastavitev pozabljenega gesla,
+- izvoz cenitev v PDF ali Excel,
+- zgodovina sprememb posamezne cenitve,
+- dodajanje priponk k cenitvi,
+- naprednejše poročanje,
+- integracija z zemljevidom ali GIS podatki,
+- vloge uporabnikov.

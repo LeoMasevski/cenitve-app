@@ -2,8 +2,14 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/validation.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 require_login();
+
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 $errors = [];
 
@@ -37,6 +43,10 @@ $value_premises = [
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $errors[] = 'Varnostni žeton ni veljaven. Prosimo, poskusite ponovno.';
+    }
+
     $client_name = trim($_POST['client_name'] ?? '');
     $client_address = trim($_POST['client_address'] ?? '');
     $valuation_purpose = trim($_POST['valuation_purpose'] ?? '');
@@ -50,6 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($client_address === '') {
         $errors[] = 'Naslov naročnika je obvezen.';
+    } elseif (!is_valid_client_address($client_address)) {
+        $errors[] = 'Naslov naročnika mora biti v obliki: ulica in hišna številka, kraj. Primer: Slovenska ulica 10, Maribor.';
     }
 
     if (!in_array($valuation_purpose, $valuation_purposes, true)) {
@@ -112,15 +124,20 @@ require_once __DIR__ . '/../includes/header.php';
     <?php endif; ?>
 
     <form method="POST" action="valuation_create.php">
+        <input type="hidden" name="csrf_token" value="<?php echo escape_html(csrf_token()); ?>">
         <div class="form-group">
             <label for="client_name">Naziv naročnika</label>
             <input
                 type="text"
                 id="client_name"
                 name="client_name"
+                placeholder="npr. Testni naročnik d.o.o."
                 value="<?php echo escape_html($client_name); ?>"
                 required
             >
+            <small class="field-hint">
+                Vnesite naziv fizične ali pravne osebe, ki naroča cenitev.
+            </small>
         </div>
 
         <div class="form-group">
@@ -129,9 +146,15 @@ require_once __DIR__ . '/../includes/header.php';
                 type="text"
                 id="client_address"
                 name="client_address"
+                placeholder="npr. Slovenska ulica 10, Maribor"
                 value="<?php echo escape_html($client_address); ?>"
+                pattern="^[A-Za-zÀ-ž0-9\s\.\-]+?\s+\d+[A-Za-z]?(\/\d+)?\s*,\s*(\d{4}\s+)?[A-Za-zÀ-ž\s\.\-]+$"
+                title="Vnesite naslov v obliki: ulica in hišna številka, kraj. Primer: Slovenska ulica 10, Maribor."
                 required
             >
+            <small class="field-hint">
+                Priporočena oblika: ulica in hišna številka, kraj. Primer: Slovenska ulica 10, Maribor.
+            </small>
         </div>
 
         <div class="form-group">

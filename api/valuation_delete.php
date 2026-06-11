@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 header('Content-Type: application/json');
 
@@ -17,6 +18,17 @@ if (!is_logged_in()) {
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
+
+if (!verify_csrf_token($input['csrf_token'] ?? null)) {
+    http_response_code(403);
+
+    echo json_encode([
+        'success' => false,
+        'message' => 'Varnostni žeton ni veljaven.'
+    ]);
+
+    exit;
+}
 
 $id = (int) ($input['id'] ?? 0);
 

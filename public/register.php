@@ -1,6 +1,12 @@
 <?php
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/validation.php';
+require_once __DIR__ . '/../includes/csrf.php';
+
+redirect_if_logged_in();
+
 require_once __DIR__ . '/../includes/header.php';
 
 $errors = [];
@@ -10,6 +16,10 @@ $last_name = '';
 $email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? null)) {
+        $errors[] = 'Varnostni žeton ni veljaven. Prosimo, poskusite ponovno.';
+    }
+
     $first_name = trim($_POST['first_name'] ?? '');
     $last_name = trim($_POST['last_name'] ?? '');
     $email = trim($_POST['email'] ?? '');
@@ -32,8 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($password === '') {
         $errors[] = 'Geslo je obvezno.';
-    } elseif (strlen($password) < 8) {
-        $errors[] = 'Geslo mora vsebovati vsaj 8 znakov.';
+    } else {
+        $password_errors = validate_password_strength($password);
+        $errors = array_merge($errors, $password_errors);
     }
 
     if ($password !== $password_confirm) {
@@ -84,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="POST" action="register.php">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
         <div class="form-group">
             <label for="first_name">Ime</label>
             <input
@@ -125,6 +137,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 name="password"
                 required
             >
+            <small class="field-hint">
+                Geslo naj vsebuje vsaj 15 znakov, veliko črko, malo črko, številko in poseben znak.
+            </small>
         </div>
 
         <div class="form-group">
